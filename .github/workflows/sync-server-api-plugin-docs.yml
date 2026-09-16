@@ -101,6 +101,8 @@ jobs:
           bash .github/scripts/add_server_plugin_api_to_summary.sh
 
       - name: Open a pull request if the generated docs changed
+        id: cpr
+        continue-on-error: true
         uses: peter-evans/create-pull-request@v8
         with:
           branch: automated/sync-server-api-plugin-docs
@@ -127,3 +129,8 @@ jobs:
           labels: |
             automated
             documentation
+
+      - name: Warn if PR creation is blocked by repository policy
+        if: steps.cpr.outcome == 'failure'
+        run: |
+          echo "::warning title=PR creation blocked::The branch was pushed but this repository currently blocks pull-request creation from GitHub Actions. Enable Settings > Actions > General > Allow GitHub Actions to create and approve pull requests, then re-run this workflow."
